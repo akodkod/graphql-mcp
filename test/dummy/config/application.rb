@@ -5,6 +5,7 @@ require "rails"
 require "active_record/railtie"
 require "action_controller/railtie"
 require "graphql"
+require "graphql/mcp/spike"
 
 module Dummy
   class Application < Rails::Application
