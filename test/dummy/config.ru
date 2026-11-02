@@ -19,6 +19,6 @@ ActiveRecord::Migration.verbose = false
 load File.expand_path("db/schema.rb", __dir__)
 
 ada = User.create!(name: "Ada", email: "ada@example.com", token: "dev-token")
-Post.create!(author: ada, title: "Hello MCP", body: "first post from the dummy app", status: :published, rating: 4.5)
+Post.create!(author: ada, title: "Hello MCP", body: "first post from the dummy app", status: :published, rating: 4.5, published_at: Time.current)
 
 run Rails.application
