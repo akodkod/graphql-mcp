@@ -1,8 +1,199 @@
+# Adapted from 811spotter/api (via akodkod/varlock); Rails and app-specific rules omitted.
+
+plugins:
+  - rubocop-performance
+  - rubocop-sane
+
+inherit_mode:
+  merge:
+    - Exclude
+
 AllCops:
+  NewCops: enable
   TargetRubyVersion: 3.2
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+  Exclude:
+    - vendor/**/*
+    - pkg/**/*
+    - rbi/**/*
+    - test/dummy/db/schema.rb
+
+Layout/EmptyLinesAfterModuleInclusion:
+  Enabled: true
+
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/FirstMethodArgumentLineBreak:
+  Enabled: true
+  AllowMultilineFinalElement: true
+
+Layout/FirstMethodParameterLineBreak:
+  Enabled: true
+  AllowMultilineFinalElement: true
+
+Layout/LineLength:
+  Enabled: false
+
+Layout/MultilineArrayLineBreaks:
+  Enabled: true
+  AllowMultilineFinalElement: true
+
+Layout/MultilineHashKeyLineBreaks:
+  Enabled: true
+  AllowMultilineFinalElement: true
+
+Layout/MultilineMethodArgumentLineBreaks:
+  Enabled: true
+  AllowMultilineFinalElement: true
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/MultilineMethodParameterLineBreaks:
+  Enabled: true
+  AllowMultilineFinalElement: true
+
+Layout/SpaceInLambdaLiteral:
+  EnforcedStyle: require_space
+
+Lint/EmptyBlock:
+  Exclude:
+    - test/**/*
+
+Lint/UselessAssignment:
+  AutoCorrect: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Naming/BlockForwarding:
+  Enabled: false
+
+Naming/BlockParameterName:
+  MinNameLength: 2
+  AllowedNames:
+    - a
+    - b
+
+Naming/MethodParameterName:
+  MinNameLength: 2
+
+Naming/PredicateMethod:
+  Enabled: false
+
+Naming/PredicatePrefix:
+  Enabled: false
+
+Sane/DisallowMethods:
+  ProhibitedMethods:
+    ap:
+      reason: dev code is not allowed on production
+
+Sane/OmitParentheses:
+  Enabled: true
+  Methods:
+    - puts
+
+Sane/ProhibitedComments:
+  Enabled: true
+  ProhibitedWords:
+    - DELETE
+    - delete
+    - REMEMBER
+    - remember
+    - def
+    - arg
+    - step
+    - class
+    - module
+
+Style/ArgumentsForwarding:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Exclude:
+    - test/**/*
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
+Style/EmptyStringInsideInterpolation:
+  EnforcedStyle: ternary
+
+Style/FetchEnvVar:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  SafeAutoCorrect: true
+
+Style/HashAsLastArrayItem:
+  EnforcedStyle: no_braces
+
+Style/HashSyntax:
+  EnforcedShorthandSyntax: always
+  EnforcedStyle: ruby19
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Style/Lambda:
+  EnforcedStyle: literal
+
+Style/NestedTernaryOperator:
+  Enabled: false
+
+Style/SafeNavigationChainLength:
+  Max: 5
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
-Style/StringLiteralsInInterpolation:
-  EnforcedStyle: double_quotes
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: diff_comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingUnderscoreVariable:
+  Enabled: false
+
+Style/WordArray:
+  EnforcedStyle: brackets

@@ -1,43 +1,37 @@
-# Graphql::Mcp
+# graphql-mcp
 
-TODO: Delete this and the text below, and describe your gem
+Expose a [GraphQL-Ruby](https://graphql-ruby.org) schema as an [MCP](https://modelcontextprotocol.io) server, so AI assistants can call your queries and mutations as tools.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/graphql/mcp`. To experiment with that code, run `bin/console` for an interactive prompt.
+> **Status:** in development. The published 0.1.0 is an empty placeholder; the first usable release will be 0.2.0.
 
-## Installation
+## Planned usage
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
-
-Install the gem and add to the application's Gemfile by executing:
-
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```ruby
+# config/routes.rb
+mount GraphQLMCP.from_schema(MySchema), at: "/mcp"
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+- MCP tools, with input and output schemas, are generated from the schema's queries, mutations and types
+- Every tool call runs through the original schema, so resolvers, authorization and validation behave as they do over GraphQL
+- The first version selects scalar and enum output fields automatically
+- The application provides the authentication context and chooses which operations are exposed
 
-```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
-```
+Installation, configuration, supported types and limitations will be documented here before the first release.
 
-## Usage
+## Sorbet
 
-TODO: Write usage instructions here
+The gem ships RBI signatures in `rbi/`. Running `bin/tapioca gem` in an application imports them, so Sorbet knows the gem's types without a separate RBI.
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```bash
+mise install    # Ruby version from mise.toml
+bundle install
+bundle exec rake    # tests, RuboCop and Sorbet
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/graphql-mcp. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/graphql-mcp/blob/main/CODE_OF_CONDUCT.md).
+Tests run against a real Rails application with a GraphQL schema in `test/dummy`, backed by an in-memory SQLite database.
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the Graphql::Mcp project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/graphql-mcp/blob/main/CODE_OF_CONDUCT.md).
+Available as open source under the terms of the [MIT License](LICENSE.txt).

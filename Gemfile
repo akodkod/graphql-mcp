@@ -1,13 +1,22 @@
 # frozen_string_literal: true
 
 source "https://rubygems.org"
-
-# Specify your gem's dependencies in graphql-mcp.gemspec
 gemspec
 
 gem "irb"
-gem "rake", "~> 13.0"
+gem "rake", ">= 13", "< 14"
 
-gem "minitest", "~> 5.16"
+group :test do
+  gem "actionpack", ENV.fetch("RAILS_VERSION", "~> 8.1")
+  gem "activerecord", ENV.fetch("RAILS_VERSION", "~> 8.1")
+  gem "minitest", ">= 5", "< 7"
+  gem "railties", ENV.fetch("RAILS_VERSION", "~> 8.1")
+  gem "sqlite3", ">= 2.1"
+end
 
-gem "rubocop", "~> 1.21"
+group :development do
+  gem "rubocop", "1.92.1", require: false
+  gem "rubocop-performance", "1.27.0", require: false
+  gem "rubocop-sane", github: "akodkod/rubocop-sane", ref: "ff2d8ffbeb4785d928aacadb3a3ec8d6175ef361", require: false
+  gem "sorbet-static", require: false
+end
