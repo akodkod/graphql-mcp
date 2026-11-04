@@ -9,7 +9,6 @@ gem "rake", ">= 13", "< 14"
 group :test do
   gem "actionpack", ENV.fetch("RAILS_VERSION", "~> 8.1")
   gem "activerecord", ENV.fetch("RAILS_VERSION", "~> 8.1")
-  gem "mcp", "~> 1.8"
   gem "minitest", ">= 5", "< 7"
   gem "railties", ENV.fetch("RAILS_VERSION", "~> 8.1")
   gem "sqlite3", ">= 2.1"

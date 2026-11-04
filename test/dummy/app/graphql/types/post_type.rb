@@ -14,5 +14,6 @@ module Types
     field :word_count, Int, null: false
     field :published_at, GraphQL::Types::ISO8601DateTime
     field :author, Types::UserType, null: false
+    field :moderation_note, String, hidden: true
   end
 end
