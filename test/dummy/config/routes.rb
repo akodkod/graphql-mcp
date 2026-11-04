@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-mcp = GraphQLMCP::Spike::RackApp.new(
+mcp = GraphQLMCP.from_schema(
+  DummySchema,
   name: "dummy",
-  tools: SpikeTools.all,
   context: -> (request) {
     token = request.get_header("HTTP_AUTHORIZATION").to_s.delete_prefix("Bearer ").presence
     user = token && User.find_by(token:)

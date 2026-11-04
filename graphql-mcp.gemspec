@@ -17,6 +17,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "graphql", ">= 2.4", "< 3"
+  spec.add_dependency "mcp", "~> 1.8"
+  spec.add_dependency "rack", ">= 2.2", "< 4"
 
   spec.metadata["rubygems_mfa_required"] = "true"
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
