@@ -26,7 +26,7 @@ class ToolsTest < ActionDispatch::IntegrationTest
   test "every root query and mutation field becomes a tool" do
     tools = list_tools(user: @user)
 
-    assert_equal ["createPost", "deletePost", "post", "posts", "updatePost", "viewer"], tools.keys.sort
+    assert_equal ["createPost", "deletePost", "node", "post", "posts", "search", "updatePost", "viewer"], tools.keys.sort
     assert_equal "Find a post by ID", tools.dig("post", "description")
     assert_equal "Create a post authored by the current user", tools.dig("createPost", "description")
   end
@@ -60,7 +60,7 @@ class ToolsTest < ActionDispatch::IntegrationTest
   test "connection arguments are tool inputs" do
     properties = list_tools(user: @user).dig("posts", "inputSchema", "properties")
 
-    assert_equal ["after", "authorId", "before", "first", "last", "status"], properties.keys.sort
+    assert_equal ["after", "authorId", "before", "filter", "first", "last", "status"], properties.keys.sort
     assert_equal ["integer", "null"], properties.dig("first", "type")
   end
 
@@ -68,9 +68,9 @@ class ToolsTest < ActionDispatch::IntegrationTest
     post = list_tools(user: @user).dig("post", "outputSchema", "properties", "post")
 
     assert_equal ["object", "null"], post["type"]
-    assert_equal ["id", "title", "body", "status", "rating", "featured", "wordCount", "publishedAt", "author"], post["properties"].keys
+    assert_equal ["id", "createdAt", "title", "body", "status", "rating", "featured", "wordCount", "publishedAt", "scheduledOn", "tags", "metadata", "author"], post["properties"].keys
     assert_equal({ "type" => ["string", "null"], "format" => "date-time" }, post.dig("properties", "publishedAt"))
-    assert_equal ["id", "name"], post.dig("properties", "author", "properties").keys
+    assert_equal ["id", "createdAt", "name"], post.dig("properties", "author", "properties").keys
   end
 
   test "hidden fields are not selected" do
@@ -91,6 +91,6 @@ class ToolsTest < ActionDispatch::IntegrationTest
     payload = list_tools(user: @user).dig("createPost", "outputSchema", "properties", "createPost")
 
     assert_equal ["post", "errors"], payload["properties"].keys
-    assert_equal ["id", "name"], payload.dig("properties", "post", "properties", "author", "properties").keys
+    assert_equal ["id", "createdAt", "name"], payload.dig("properties", "post", "properties", "author", "properties").keys
   end
 end

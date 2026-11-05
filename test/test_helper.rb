@@ -52,6 +52,17 @@ class ActionDispatch::IntegrationTest
     mcp("tools/list", user:).dig("result", "tools").index_by { |tool| tool["name"] }
   end
 
+  # GraphQL `data` becomes structured content, and GraphQL errors become a tool error with their messages
+  def assert_same_result(graphql_result, mcp_result)
+    if graphql_result["errors"]
+      assert_equal true, mcp_result["isError"], "expected a tool error, got #{mcp_result.inspect}"
+      assert_equal graphql_result["errors"].pluck("message").join("\n"), mcp_result.dig("content", 0, "text")
+    else
+      assert_equal false, mcp_result["isError"], mcp_result.dig("content", 0, "text")
+      assert_equal graphql_result["data"], mcp_result["structuredContent"]
+    end
+  end
+
   # Runs the block in a transaction that is rolled back, so the next run starts from the same data
   def rolled_back
     result = nil

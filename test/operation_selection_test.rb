@@ -4,7 +4,7 @@ require "test_helper"
 
 # Checks that `only` and `except` decide which operations become tools
 class OperationSelectionTest < Minitest::Test
-  ALL_TOOLS = ["createPost", "deletePost", "post", "posts", "updatePost", "viewer"].freeze
+  ALL_TOOLS = ["createPost", "deletePost", "node", "post", "posts", "search", "updatePost", "viewer"].freeze
 
   def test_exposes_every_operation_by_default
     assert_equal ALL_TOOLS, tool_names(app)
@@ -15,7 +15,7 @@ class OperationSelectionTest < Minitest::Test
   end
 
   def test_except_leaves_out_the_listed_operations
-    assert_equal ["post", "posts", "viewer"], tool_names(app(except: [:createPost, :updatePost, :deletePost]))
+    assert_equal ["node", "post", "posts", "search", "viewer"], tool_names(app(except: [:createPost, :updatePost, :deletePost]))
   end
 
   def test_left_out_operations_cannot_be_called
