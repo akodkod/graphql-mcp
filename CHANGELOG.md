@@ -9,6 +9,7 @@
 - Ship Sorbet signatures for `GraphQLMCP.from_schema`
 - Set how many levels of nested objects tools return with `depth:` (default 1). Mutation payloads do not use up a level
 - Select each union member's fields with inline fragments. Interfaces select their own fields
+- Document installation, options, tools, visibility, security and limitations in the README
 
 ## [0.1.0] - 2026-10-28
 
