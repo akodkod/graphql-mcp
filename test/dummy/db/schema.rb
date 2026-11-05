@@ -16,6 +16,9 @@ ActiveRecord::Schema.define do
     t.float :rating
     t.boolean :featured, null: false, default: false
     t.datetime :published_at
+    t.date :scheduled_on
+    t.json :tags, null: false, default: []
+    t.json :metadata
     t.timestamps
   end
 end

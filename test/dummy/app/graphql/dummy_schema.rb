@@ -11,6 +11,10 @@ class DummySchema < GraphQL::Schema
     raise GraphQL::ExecutionError, "#{error.model} not found"
   end
 
+  def self.resolve_type(_abstract_type, object, _context)
+    object.is_a?(Post) ? Types::PostType : Types::UserType
+  end
+
   # Like 811spotter, so hidden fields go through the same visibility profile. Configured after the roots
   use GraphQL::Schema::Visibility
 end

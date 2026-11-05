@@ -26,6 +26,8 @@ module GraphQLMCP
     def self.nullable(schema, nullable)
       return schema if !nullable || schema.empty?
 
+      return { anyOf: [*schema[:anyOf], type: "null"] } if schema[:anyOf]
+
       schema = schema.dup
       schema[:type] = [*schema[:type], "null"] if schema[:type]
       schema[:enum] = [*schema[:enum], nil] if schema[:enum]

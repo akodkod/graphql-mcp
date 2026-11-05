@@ -5,8 +5,9 @@ module GraphQLMCP
   #
   # Scalar and enum fields are always selected. Object fields go `depth` levels deep, so at depth 1 a post
   # includes `author { ... }`, and at depth 0 only its own fields. Connections select `nodes` and
-  # `pageInfo` without using up depth. Lists of objects, nested connections, unions, hidden fields and fields
-  # with required arguments are skipped
+  # `pageInfo` without using up depth. Interfaces select their own fields, and unions select each member's
+  # fields with `... on Member`. Lists of objects, nested connections, hidden fields and fields with required
+  # arguments are skipped
   class Selection
     attr_reader :graphql, :json_schema
 
@@ -35,9 +36,29 @@ module GraphQLMCP
         [nil, @json_schemas.leaf(type)]
       elsif type.kind.object? || type.kind.interface?
         composite(type, depth)
+      elsif type.kind.union?
+        union(type, depth)
       else
         [nil, nil]
       end
+    end
+
+    # Each member's fields in an inline fragment, with `__typename` to tell the results apart
+    def union(type, depth)
+      members = @types.possible_types(type).filter_map do |member|
+        graphql, schema = composite(member, depth)
+        next unless schema
+
+        schema = schema.merge(
+          properties: { __typename: { const: member.graphql_name } }.merge(schema[:properties]),
+          required: ["__typename", *schema[:required]],
+        )
+        ["... on #{member.graphql_name} #{graphql}", schema]
+      end
+
+      return [nil, nil] if members.empty?
+
+      ["{ __typename #{members.map(&:first).join(' ')} }", anyOf: members.map(&:last)]
     end
 
     def composite(type, depth)

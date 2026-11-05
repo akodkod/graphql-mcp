@@ -4,7 +4,7 @@ require "test_helper"
 
 # Runs equivalent operations through GraphQL and through MCP and compares the results
 class ParityTest < ActionDispatch::IntegrationTest
-  POST_FIELDS = "id title body status rating featured wordCount publishedAt"
+  POST_FIELDS = "id createdAt title body status rating featured wordCount publishedAt scheduledOn tags metadata"
 
   setup do
     @author = create_user(name: "Ada")
@@ -16,7 +16,7 @@ class ParityTest < ActionDispatch::IntegrationTest
     record = create_post(author: @author, body: "one two three", rating: 4.5, featured: true)
     create_post(author: @author, title: "Empty", status: :draft)
 
-    graphql_result = graphql("query($id: ID!) { post(id: $id) { #{POST_FIELDS} author { id name } } }", variables: { id: record.id }, user: @author)
+    graphql_result = graphql("query($id: ID!) { post(id: $id) { #{POST_FIELDS} author { id createdAt name } } }", variables: { id: record.id }, user: @author)
     mcp_result = call_tool("post", { id: record.id.to_s }, user: @author)
 
     assert_same_result graphql_result, mcp_result
@@ -27,7 +27,7 @@ class ParityTest < ActionDispatch::IntegrationTest
   test "null fields stay null" do
     record = create_post(author: @author, title: "Bare")
 
-    graphql_result = graphql("query($id: ID!) { post(id: $id) { #{POST_FIELDS} author { id name } } }", variables: { id: record.id }, user: @author)
+    graphql_result = graphql("query($id: ID!) { post(id: $id) { #{POST_FIELDS} author { id createdAt name } } }", variables: { id: record.id }, user: @author)
     mcp_result = call_tool("post", { id: record.id.to_s }, user: @author)
 
     assert_same_result graphql_result, mcp_result
@@ -41,7 +41,7 @@ class ParityTest < ActionDispatch::IntegrationTest
     query = <<~GRAPHQL
       query($first: Int, $after: String, $status: PostStatusEnum) {
         posts(first: $first, after: $after, status: $status) {
-          nodes { #{POST_FIELDS} author { id name } }
+          nodes { #{POST_FIELDS} author { id createdAt name } }
           pageInfo { hasNextPage hasPreviousPage startCursor endCursor }
         }
       }
@@ -58,7 +58,7 @@ class ParityTest < ActionDispatch::IntegrationTest
   end
 
   test "resolvers receive the application context" do
-    graphql_result = graphql("{ viewer { id name } }", user: @other)
+    graphql_result = graphql("{ viewer { id createdAt name } }", user: @other)
     mcp_result = call_tool("viewer", user: @other)
 
     assert_same_result graphql_result, mcp_result
@@ -106,7 +106,7 @@ class ParityTest < ActionDispatch::IntegrationTest
   end
 
   test "mutations create the same record from the same starting data" do
-    query = "mutation($input: PostInput!) { createPost(input: $input) { post { #{POST_FIELDS} author { id name } } errors } }"
+    query = "mutation($input: PostInput!) { createPost(input: $input) { post { #{POST_FIELDS} author { id createdAt name } } errors } }"
     input = { title: "New", body: "a b c", status: "PUBLISHED", rating: 5.0 }
 
     graphql_result = rolled_back { graphql(query, variables: { input: }, user: @author) }
@@ -121,7 +121,7 @@ class ParityTest < ActionDispatch::IntegrationTest
 
   test "mutations update the same record from the same starting data" do
     record = create_post(author: @author, title: "Old", status: :draft)
-    query = "mutation($id: ID!, $input: PostInput!) { updatePost(id: $id, input: $input) { post { #{POST_FIELDS} author { id name } } errors } }"
+    query = "mutation($id: ID!, $input: PostInput!) { updatePost(id: $id, input: $input) { post { #{POST_FIELDS} author { id createdAt name } } errors } }"
     arguments = { id: record.id.to_s, input: { title: "Renamed", featured: true } }
 
     graphql_result = rolled_back { graphql(query, variables: arguments, user: @author) }
@@ -156,18 +156,5 @@ class ParityTest < ActionDispatch::IntegrationTest
 
     assert_same_result graphql_result, mcp_result
     refute Post.exists?(record.id)
-  end
-
-  private
-
-  # GraphQL `data` becomes structured content, and GraphQL errors become a tool error with their messages
-  def assert_same_result(graphql_result, mcp_result)
-    if graphql_result["errors"]
-      assert_equal true, mcp_result["isError"], "expected a tool error, got #{mcp_result.inspect}"
-      assert_equal graphql_result["errors"].pluck("message").join("\n"), mcp_result.dig("content", 0, "text")
-    else
-      assert_equal false, mcp_result["isError"], mcp_result.dig("content", 0, "text")
-      assert_equal graphql_result["data"], mcp_result["structuredContent"]
-    end
   end
 end
