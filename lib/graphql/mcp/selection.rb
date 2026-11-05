@@ -3,8 +3,8 @@
 module GraphQLMCP
   # Chooses the output fields of an operation and describes them as JSON Schema.
   #
-  # Scalar and enum fields are always selected. Object fields go `depth` levels deep, so a mutation payload
-  # like `{ post { ... } errors }` returns the post, not just the errors. Connections select `nodes` and
+  # Scalar and enum fields are always selected. Object fields go `depth` levels deep, so at depth 1 a post
+  # includes `author { ... }`, and at depth 0 only its own fields. Connections select `nodes` and
   # `pageInfo` without using up depth. Lists of objects, nested connections, unions, hidden fields and fields
   # with required arguments are skipped
   class Selection

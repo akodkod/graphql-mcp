@@ -13,10 +13,11 @@ module GraphQLMCP
       name: String,
       only: T.nilable(T::Array[T.any(String, Symbol)]),
       except: T.nilable(T::Array[T.any(String, Symbol)]),
+      depth: Integer,
       allowed_hosts: T.nilable(T::Array[String]),
     ).returns(GraphQLMCP::RackApp)
   end
-  def self.from_schema(schema, context:, name: T.unsafe(nil), only: nil, except: nil, allowed_hosts: nil); end
+  def self.from_schema(schema, context:, name: T.unsafe(nil), only: nil, except: nil, depth: 1, allowed_hosts: nil); end
 
   # A Rack app that serves the schema's operations as MCP tools
   class RackApp

@@ -10,4 +10,7 @@ class DummySchema < GraphQL::Schema
   rescue_from ActiveRecord::RecordNotFound do |error|
     raise GraphQL::ExecutionError, "#{error.model} not found"
   end
+
+  # Like 811spotter, so hidden fields go through the same visibility profile. Configured after the roots
+  use GraphQL::Schema::Visibility
 end

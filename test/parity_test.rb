@@ -106,7 +106,7 @@ class ParityTest < ActionDispatch::IntegrationTest
   end
 
   test "mutations create the same record from the same starting data" do
-    query = "mutation($input: PostInput!) { createPost(input: $input) { post { #{POST_FIELDS} } errors } }"
+    query = "mutation($input: PostInput!) { createPost(input: $input) { post { #{POST_FIELDS} author { id name } } errors } }"
     input = { title: "New", body: "a b c", status: "PUBLISHED", rating: 5.0 }
 
     graphql_result = rolled_back { graphql(query, variables: { input: }, user: @author) }
@@ -121,7 +121,7 @@ class ParityTest < ActionDispatch::IntegrationTest
 
   test "mutations update the same record from the same starting data" do
     record = create_post(author: @author, title: "Old", status: :draft)
-    query = "mutation($id: ID!, $input: PostInput!) { updatePost(id: $id, input: $input) { post { #{POST_FIELDS} } errors } }"
+    query = "mutation($id: ID!, $input: PostInput!) { updatePost(id: $id, input: $input) { post { #{POST_FIELDS} author { id name } } errors } }"
     arguments = { id: record.id.to_s, input: { title: "Renamed", featured: true } }
 
     graphql_result = rolled_back { graphql(query, variables: arguments, user: @author) }

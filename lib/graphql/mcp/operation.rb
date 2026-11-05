@@ -10,12 +10,15 @@ module GraphQLMCP
     attr_reader :schema, :field, :operation_type
 
     # types: the schema's visibility profile, which decides the arguments and fields to expose
+    # depth: levels of nested objects to select, see Selection
     def initialize(schema:, field:, operation_type:, types:, depth: DEFAULT_DEPTH)
       @schema = schema
       @field = field
       @operation_type = operation_type
       @types = types
-      @selection = Selection.new(field.type, depth:, types:)
+
+      # A mutation payload only wraps the records it returns, so it does not use up a level
+      @selection = Selection.new(field.type, depth: payload? ? depth + 1 : depth, types:)
     end
 
     def name
@@ -92,6 +95,11 @@ module GraphQLMCP
     end
 
     private
+
+    def payload?
+      resolver = field.resolver
+      !resolver.nil? && resolver < GraphQL::Schema::Mutation
+    end
 
     # A composite type with nothing to select still needs a selection set to be a valid query
     def selection_set
