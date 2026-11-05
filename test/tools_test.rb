@@ -83,14 +83,14 @@ class ToolsTest < ActionDispatch::IntegrationTest
   test "connections return nodes and page info but not edges" do
     posts = list_tools(user: @user).dig("posts", "outputSchema", "properties", "posts")
 
-    assert_equal ["nodes", "pageInfo"], posts["properties"].keys
+    assert_equal ["nodes", "pageInfo"], posts["properties"].keys.sort
     assert_equal ["hasNextPage", "hasPreviousPage", "startCursor", "endCursor"], posts.dig("properties", "pageInfo", "properties").keys
   end
 
-  test "mutation payloads include the records they return" do
+  test "mutation payloads do not use up a level" do
     payload = list_tools(user: @user).dig("createPost", "outputSchema", "properties", "createPost")
 
     assert_equal ["post", "errors"], payload["properties"].keys
-    refute_includes payload.dig("properties", "post", "properties").keys, "author"
+    assert_equal ["id", "name"], payload.dig("properties", "post", "properties", "author", "properties").keys
   end
 end

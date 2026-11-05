@@ -10,12 +10,15 @@ module GraphQLMCP
 
     # context: a callable that receives the Rack request and returns the GraphQL context, or nil to reject it with 401
     # only / except: tool names (root field names, like "createPost") to expose or to leave out
+    # depth: levels of nested objects tools return. 0 returns each record's own fields only
     # allowed_hosts: Host header values accepted besides loopback, see the SDK's DNS rebinding protection
-    def initialize(schema:, context:, name: schema.name.to_s, only: nil, except: nil, allowed_hosts: nil) # rubocop:disable Metrics/ParameterLists
+    def initialize(schema:, context:, name: schema.name.to_s, only: nil, except: nil, depth: Operation::DEFAULT_DEPTH, allowed_hosts: nil) # rubocop:disable Metrics/ParameterLists
+      raise ArgumentError, "depth must be a non-negative integer" unless depth.is_a?(Integer) && depth >= 0
+
       @name = name
       @context = context
       @allowed_hosts = allowed_hosts
-      @tools = select_operations(Operations.new(schema), only:, except:).map(&:to_tool)
+      @tools = select_operations(Operations.new(schema, depth:), only:, except:).map(&:to_tool)
 
       # GraphQL validates arguments itself, so its errors reach clients unchanged
       @configuration = MCP::Configuration.new(validate_tool_call_arguments: false)

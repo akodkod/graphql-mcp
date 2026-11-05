@@ -5,8 +5,9 @@ module GraphQLMCP
   class Operations
     include Enumerable
 
-    def initialize(schema)
+    def initialize(schema, depth: Operation::DEFAULT_DEPTH)
       @schema = schema
+      @depth = depth
 
       # The visibility profile filters fields, arguments and enum values the same way real queries do,
       # including `visible?` checks that depend on which schema runs the query
@@ -34,7 +35,7 @@ module GraphQLMCP
       return [] unless type
 
       @types.fields(type).map do |field|
-        Operation.new(schema: @schema, field:, operation_type:, types: @types)
+        Operation.new(schema: @schema, field:, operation_type:, types: @types, depth: @depth)
       end
     end
   end
