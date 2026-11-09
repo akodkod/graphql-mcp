@@ -1,4 +1,4 @@
-## [Unreleased]
+## [0.2.0] - 2026-11-09
 
 - Rename the namespace to `GraphQLMCP`
 - Ship Sorbet RBI signatures in `rbi/`
