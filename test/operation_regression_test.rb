@@ -44,6 +44,7 @@ class OperationRegressionTest < Minitest::Test
     field :greeting, String, null: false do
       argument :name, String, required: true, default_value: "world"
     end
+
     field :results, [Result], null: false
     field :empty_result, EmptyResult, null: false
     field :nullable_result, Result, null: true
@@ -144,7 +145,7 @@ class OperationRegressionTest < Minitest::Test
     operation = operation("nullableResult")
     validator = JSONSchemer.schema(operation.output_schema)
 
-    [nil, { type: NumberResult, value: 42 }].each do |result|
+    [nil, type: NumberResult, value: 42].each do |result|
       response = operation.call({}, context: { result: })
       expected = result && { "__typename" => "NumberResult", "NumberResult_value" => 42 }
 
@@ -152,6 +153,7 @@ class OperationRegressionTest < Minitest::Test
       assert_equal({ "nullableResult" => expected }, response.structured_content)
       assert validator.valid?(response.structured_content)
     end
+
     refute validator.valid?({ "nullableResult" => { "__typename" => "Unknown" } })
   end
 

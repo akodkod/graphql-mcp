@@ -115,7 +115,7 @@ These fields are skipped:
 - Fields with required arguments
 - Hidden fields (see [Visibility](#visibility))
 
-Interfaces select their own fields. Unions select each member's fields with inline fragments, plus `__typename` to tell them apart.
+Interfaces select their own fields. Unions select each member's fields with inline fragments, plus `__typename` to tell them apart. Selected fields with conflicting return types receive distinct response aliases, reflected in the output schema. Skipped fields do not cause aliases.
 
 Lower depth means smaller tool definitions, which assistants load into their context on every request. For a large schema, `depth: 0` with focused root fields is often the better trade.
 

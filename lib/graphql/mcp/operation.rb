@@ -37,11 +37,12 @@ module GraphQLMCP
       @query ||= begin
         arguments = @types.arguments(field)
         variables = arguments.map do |argument|
-          # Nullable variables may be omitted at defaulted arguments; the field still rejects null.
+          # Nullable variables may be omitted at defaulted arguments, and the field still rejects null
           type = argument.type
           type = type.of_type if type.non_null? && argument.default_value?
           "$#{argument.graphql_name}: #{type.to_type_signature}"
         end
+
         values = arguments.map { |argument| "#{argument.graphql_name}: $#{argument.graphql_name}" }
 
         signature = variables.any? ? "(#{variables.join(', ')})" : ""
@@ -86,9 +87,7 @@ module GraphQLMCP
     end
 
     def call(arguments, context:)
-      # The SDK passes symbol keys, but GraphQL variables are keyed by strings
-      variables = JSON.parse(JSON.generate(arguments))
-      result = schema.execute(query, variables:, context:).to_h
+      result = schema.execute(query, variables: arguments, context:).to_h
 
       if result["errors"]
         messages = result["errors"].map { |error| error["message"] }
