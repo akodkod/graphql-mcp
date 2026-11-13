@@ -45,23 +45,45 @@ module GraphQLMCP
 
     # Each member's fields in an inline fragment, with `__typename` to tell the results apart
     def union(type, depth)
-      members = @types.possible_types(type).filter_map do |member|
-        graphql, schema = composite(member, depth)
-        next unless schema
+      possible_types = @types.possible_types(type)
+      aliases = union_aliases(possible_types)
+      members = possible_types.map do |member|
+        graphql, schema = composite(member, depth, aliases: aliases.fetch(member))
+        schema ||= JSONSchema.object({})
 
         schema = schema.merge(
           properties: { __typename: { const: member.graphql_name } }.merge(schema[:properties]),
           required: ["__typename", *schema[:required]],
         )
-        ["... on #{member.graphql_name} #{graphql}", schema]
+        [graphql && "... on #{member.graphql_name} #{graphql}", schema]
       end
 
       return [nil, nil] if members.empty?
 
-      ["{ __typename #{members.map(&:first).join(' ')} }", anyOf: members.map(&:last)]
+      ["{ __typename #{members.filter_map(&:first).join(' ')} }", anyOf: members.map(&:last)]
     end
 
-    def composite(type, depth)
+    # Distinct response keys prevent return-type conflicts across mutually exclusive fragments.
+    def union_aliases(members)
+      fields = members.to_h { |member| [member, @types.fields(member)] }
+      by_name = fields.values.flatten.group_by(&:graphql_name)
+      conflicts = by_name.select { |_, definitions| definitions.map { |field| field.type.to_type_signature }.uniq.size > 1 }
+      used_names = by_name.keys
+
+      fields.to_h do |member, definitions|
+        aliases = definitions.each_with_object({}) do |field, result|
+          next unless conflicts.key?(field.graphql_name)
+
+          name = "#{member.graphql_name}_#{field.graphql_name}"
+          name = "#{name}_" while used_names.include?(name)
+          used_names << name
+          result[field.graphql_name] = name
+        end
+        [member, aliases]
+      end
+    end
+
+    def composite(type, depth, aliases: {})
       connection = connection?(type)
 
       entries = @types.fields(type).filter_map do |field|
@@ -80,8 +102,11 @@ module GraphQLMCP
 
       return [nil, nil] if entries.empty?
 
-      graphql = entries.map { |name, selection, _| [name, selection].compact.join(" ") }.join(" ")
-      properties = entries.to_h { |name, _, schema| [name, schema] }
+      graphql = entries.map do |name, selection, _|
+        field = aliases.key?(name) ? "#{aliases[name]}: #{name}" : name
+        [field, selection].compact.join(" ")
+      end.join(" ")
+      properties = entries.to_h { |name, _, schema| [aliases.fetch(name, name), schema] }
 
       ["{ #{graphql} }", JSONSchema.object(properties)]
     end

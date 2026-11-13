@@ -36,7 +36,12 @@ module GraphQLMCP
     def query
       @query ||= begin
         arguments = @types.arguments(field)
-        variables = arguments.map { |argument| "$#{argument.graphql_name}: #{argument.type.to_type_signature}" }
+        variables = arguments.map do |argument|
+          # Nullable variables may be omitted at defaulted arguments; the field still rejects null.
+          type = argument.type
+          type = type.of_type if type.non_null? && argument.default_value?
+          "$#{argument.graphql_name}: #{type.to_type_signature}"
+        end
         values = arguments.map { |argument| "#{argument.graphql_name}: $#{argument.graphql_name}" }
 
         signature = variables.any? ? "(#{variables.join(', ')})" : ""
